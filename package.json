@@ -1,0 +1,27 @@
+{
+  "name": "js-intermediate-dinossaurs",
+  "version": "1.0.0",
+  "description": "## Student Instructions",
+  "main": "app.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "npx mocha ./tests",
+    "lint": "npx eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/udacity/Javascript.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/udacity/Javascript/issues"
+  },
+  "homepage": "https://github.com/udacity/Javascript#readme",
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "eslint": "^8.36.0",
+    "mocha": "^10.2.0"
+  }
+}
