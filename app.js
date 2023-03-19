@@ -75,38 +75,48 @@ const { "Dinos": dinoData = [] } = {
     ]
 };
 
-const comparisonFactory = (() => {
+const animalDescriptionFactory = (() => {
     const compare = ({ species, otherAnimals = [], topic }) => otherAnimals
         .slice(otherAnimals.findIndex(({ species: lookaheadSpecies }) => species === lookaheadSpecies), otherAnimals.length)
         .filter(({ species: lookaheadSpecies }) => species !== lookaheadSpecies)
         .map(({ species }) => species)
         .reduce((acc, next) => Object.assign({}, acc, { species: [...acc.species, next] }), { topic, species: [] });
 
+    const describe = ({ animal: { feet, inches, lbs, diet } = {} }) => ({
+        species: [
+            `height: ${feet} ft. (${inches} inches)`,
+            `weight: ${lbs} lbs`,
+            `diet: ${diet}`
+        ],
+        topic: "description"
+    });
+
     const tallerThanComparison = ({
         species,
-        otherAnimals = dinosaurs.sort((a, b) => b.feet - a.feet)
-    }) => compare({ species, otherAnimals, topic: "taller than" });
+        otherAnimals
+    }) => compare({ species, otherAnimals: otherAnimals.sort((a, b) => b.feet - a.feet), topic: "taller than" });
 
     const sameDietThanComparison = (({ species, otherAnimals }) => {
         const { diet } = otherAnimals.find(({ species: lookaheadSpecies }) => species === lookaheadSpecies);
         return otherAnimals
-            .filter((({ diet: lookaheadDiet, species: lookaheadSpecies }) => diet === lookaheadDiet && species !== lookaheadSpecies))
+            .filter((({ diet: lookaheadDiet, species: lookaheadSpecies }) => diet.toLowerCase() === lookaheadDiet.toLowerCase() && species !== lookaheadSpecies))
             .map(({ species }) => species)
             .reduce((acc, next) => Object.assign({}, acc, { species: [...acc.species, next] }), { topic: "same diet", species: [] });
     });
 
     const heavierThanComparison = ({
         species,
-        otherAnimals = dinosaurs.sort((a, b) => b.lbs - a.lbs)
-    }) => compare({ species, otherAnimals, topic: "heavier than" });
+        otherAnimals
+    }) => compare({ species, otherAnimals: otherAnimals.sort((a, b) => b.lbs - a.lbs), topic: "heavier than" });
 
-    const getComparisons = ({ species, otherAnimals = [] }) => ([
-        tallerThanComparison({ i: 1, species, otherAnimals }),
-        heavierThanComparison({ i: 2, species, otherAnimals }),
-        sameDietThanComparison({ i: 3, species, otherAnimals })
+    const getDescription = ({ animal, otherAnimals = [] }) => ([
+        describe({ animal }),
+        tallerThanComparison({ i: 1, species: animal.species, otherAnimals }),
+        heavierThanComparison({ i: 2, species: animal.species, otherAnimals }),
+        sameDietThanComparison({ i: 3, species: animal.species, otherAnimals })
     ]);
 
-    return { getComparisons };
+    return { getDescription };
 })();
 
 
@@ -141,11 +151,11 @@ const dinosaurs = dinoData.map(({ species, fact, weight, diet, height }) => new 
 const tilesFactory = (({ dinosaurs, humanConfig, dinosaurConfigs = [], shuffle }) => {
     const { config: { filename, humanImageUrl = `images/${filename}`, color } } = humanConfig;
     let tiles = [...dinosaurs
-        .map(({ species, fact }) => {
-            const { config: { color, filename } } = dinosaurConfigs.find(({ species: lookaheadSpecies }) => species === lookaheadSpecies);
+        .map(animal => {
+            const { config: { color, filename } } = dinosaurConfigs.find(({ species: lookaheadSpecies }) => animal.species === lookaheadSpecies);
             const imageUrl = `images/${filename}`;
-            const comparisons = comparisonFactory.getComparisons(({ species, otherAnimals: dinosaurs }));
-            return new Tile(species, fact, color, imageUrl, comparisons);
+            const comparisons = animalDescriptionFactory.getDescription(({ animal, otherAnimals: dinosaurs }));
+            return new Tile(animal.species, animal.fact, color, imageUrl, comparisons);
         }), new Tile("unnamed human", "", color, humanImageUrl)];
 
     const byHumanTile = ({ imageUrl }) => "images/human.png" === imageUrl;
@@ -255,8 +265,9 @@ const tileFactory = (() => {
         dinosaurContainerEl.addEventListener("mouseenter", () => {
             dinosaurContainerEl.style.transition = "background-color 0.6s ease";
             dinosaurContainerEl.style.backgroundColor = 'rgb(255,255,255,0.7)';
-            imageEl.style.transition = "left 0.6s ease";
+            imageEl.style.transition = "left 0.6s ease, opacity 0.6s ease";
             imageEl.style.left = '-100px';
+            imageEl.style.opacity = '0.2';
             dinosaurDataContainerEl.style.transition = "display 0.6s ease";
             dinosaurDataContainerEl.style.display = "block";
         });
@@ -265,6 +276,7 @@ const tileFactory = (() => {
             dinosaurContainerEl.style.backgroundColor = color;
             dinosaurDataContainerEl.style.display = "none";
             imageEl.style.left = '54px';
+            imageEl.style.opacity = '1';
         });
         return dinosaurContainerEl;
     }
@@ -301,14 +313,14 @@ const tileFactory = (() => {
             const { value: nameText } = mainElements.nameInput;
             const { value: inchesText } = mainElements.inchesInput;
             const { value: feetText } = mainElements.feetInput;
-            const { value: weightText } = mainElements.weightInput;
+            const { value: lbsText } = mainElements.weightInput;
             const { options: dietOptions, value: dietSelectedValue } = mainElements.dietDropDown;
             const dietText = Array.from(dietOptions).find(({ value }) => dietSelectedValue === value).innerHTML
             const requiredFields = [
                 nameText,
                 inchesText,
                 feetText,
-                weightText,
+                lbsText,
                 dietSelectedValue
             ];
 
@@ -320,11 +332,14 @@ const tileFactory = (() => {
             }
 
             const inches = parseFloat(inchesText);
-            const feet = parseFloat(feetText);
-            const weight = parseFloat(weightText);
-            const human = new Human("Human", "", inches, weight, dietText, nameText);
+            const lbs = parseFloat(lbsText);
+            const human = new Human("Human", "", inches, lbs, dietText, nameText);
             const { config: { filename, humanImageUrl = `images/${filename}`, color } } = HUMAN_CONFIG;
-            const humanTile = new Tile(human.name, human.fact, color, humanImageUrl);
+            const comparisons = animalDescriptionFactory.getDescription({
+                animal: human,
+                otherAnimals: [...dinosaurs, human]
+            });
+            const humanTile = new Tile(human.name, human.fact, color, humanImageUrl, comparisons);
             tilesFactory.setHumanTile({ tile: humanTile });
             const tilesEls = tilesFactory
                 .getTiles()
