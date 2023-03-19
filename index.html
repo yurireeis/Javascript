@@ -17,7 +17,6 @@
     />
     <link href="app.css" rel="stylesheet" />
     <!-- Link to app.js with defer till HTML render -->
-    <script defer src="app.js"></script>
   </head>
   <body>
     <header>
@@ -26,6 +25,7 @@
       <h3>How do you compare?</h3>
     </header>
     <!-- Form to get user input -->
+    <!-- <form id="dino-compare" style="display: none"> -->
     <form id="dino-compare">
       <div class="form-container">
         <p>Name:</p>
@@ -33,7 +33,12 @@
         <p>Height</p>
         <label
           >Feet:
-          <input id="feet" class="form-field__short" type="number" name="feet"
+          <input
+            id="feet"
+            class="form-field__short"
+            type="number"
+            min="0"
+            name="feet"
         /></label>
         <label
           >inches:
@@ -42,27 +47,211 @@
             class="form-field__short"
             type="number"
             name="inches"
+            min="0"
         /></label>
         <p>Weight:</p>
-        <label
-          ><input
+        <label>
+          <input
             id="weight"
             class="form-field__full"
             type="number"
             name="weight"
+            min="0"
           />lbs</label
         >
         <p>Diet:</p>
         <select id="diet" class="form-field__full" name="diet">
-          <option>Herbavor</option>
-          <option>Omnivor</option>
-          <option>Carnivor</option>
+          <option value="herbavor">Herbavor</option>
+          <option value="omnivor">Omnivor</option>
+          <option value="carnivor">Carnivor</option>
         </select>
         <div id="btn">Compare Me!</div>
       </div>
     </form>
     <!-- .grid to attach tiles to -->
-    <main id="grid"></main>
+    <main id="grid">
+      <!-- <div class="dinosaur-container">
+        <div class="dinosaur-name-container">
+          <div class="dinosaur-name">animal name</div>
+        </div>
+        <div class="dinosaur-img-container">
+          <div class="dinosaur-img">
+            <img
+              src="./images/anklyosaurus.png"
+              alt=""
+              srcset=""
+              width="380px"
+              height="220px"
+              class="dinosaur"
+            />
+          </div>
+        </div>
+        <div class="fact-container">
+          <div class="fact-text">fact goes here</div>
+        </div>
+      </div>
+      <div class="dinosaur-container">
+        <div class="dinosaur-name-container">
+          <div class="dinosaur-name">animal name</div>
+        </div>
+        <div class="dinosaur-img-container">
+          <div class="dinosaur-img">
+            <img
+              src="./images/brachiosaurus.png"
+              alt=""
+              srcset=""
+              width="380px"
+              height="220px"
+              class="dinosaur"
+            />
+          </div>
+        </div>
+        <div class="fact-container">
+          <div class="fact-text">fact goes here</div>
+        </div>
+      </div>
+      <div class="dinosaur-container">
+        <div class="dinosaur-name-container">
+          <div class="dinosaur-name">animal name</div>
+        </div>
+        <div class="dinosaur-img-container">
+          <div class="dinosaur-img">
+            <img
+              src="./images/elasmosaurus.png"
+              alt=""
+              srcset=""
+              width="380px"
+              height="220px"
+              class="dinosaur"
+            />
+          </div>
+        </div>
+        <div class="fact-container">
+          <div class="fact-text">fact goes here</div>
+        </div>
+      </div>
+      <div class="dinosaur-container">
+        <div class="dinosaur-name-container">
+          <div class="dinosaur-name">animal name</div>
+        </div>
+        <div class="dinosaur-img-container">
+          <div class="dinosaur-img">
+            <img
+              src="./images/human.png"
+              alt=""
+              srcset=""
+              width="380px"
+              height="220px"
+              class="dinosaur"
+            />
+          </div>
+        </div>
+        <div class="fact-container">
+          <div class="fact-text">fact goes here</div>
+        </div>
+      </div>
+      <div class="dinosaur-container">
+        <div class="dinosaur-name-container">
+          <div class="dinosaur-name">animal name</div>
+        </div>
+        <div class="dinosaur-img-container">
+          <div class="dinosaur-img">
+            <img
+              src="./images/pigeon.png"
+              alt=""
+              srcset=""
+              width="380px"
+              height="220px"
+              class="dinosaur"
+            />
+          </div>
+        </div>
+        <div class="fact-container">
+          <div class="fact-text">fact goes here</div>
+        </div>
+      </div>
+      <div class="dinosaur-container">
+        <div class="dinosaur-name-container">
+          <div class="dinosaur-name">animal name</div>
+        </div>
+        <div class="dinosaur-img-container">
+          <div class="dinosaur-img">
+            <img
+              src="./images/pteranodon.png"
+              alt=""
+              srcset=""
+              width="380px"
+              height="220px"
+              class="dinosaur"
+            />
+          </div>
+        </div>
+        <div class="fact-container">
+          <div class="fact-text">fact goes here</div>
+        </div>
+      </div>
+      <div class="dinosaur-container">
+        <div class="dinosaur-name-container">
+          <div class="dinosaur-name">animal name</div>
+        </div>
+        <div class="dinosaur-img-container">
+          <div class="dinosaur-img">
+            <img
+              src="./images/stegosaurus.png"
+              alt=""
+              srcset=""
+              width="380px"
+              height="220px"
+              class="dinosaur"
+            />
+          </div>
+        </div>
+        <div class="fact-container">
+          <div class="fact-text">fact goes here</div>
+        </div>
+      </div>
+      <div class="dinosaur-container">
+        <div class="dinosaur-name-container">
+          <div class="dinosaur-name">animal name</div>
+        </div>
+        <div class="dinosaur-img-container">
+          <div class="dinosaur-img">
+            <img
+              src="./images/triceratops.png"
+              alt=""
+              srcset=""
+              width="380px"
+              height="220px"
+              class="dinosaur"
+            />
+          </div>
+        </div>
+        <div class="fact-container">
+          <div class="fact-text">fact goes here</div>
+        </div>
+      </div>
+      <div class="dinosaur-container">
+        <div class="dinosaur-name-container">
+          <div class="dinosaur-name">animal name</div>
+        </div>
+        <div class="dinosaur-img-container">
+          <div class="dinosaur-img">
+            <img
+              src="./images/tyrannosaurus rex.png"
+              alt=""
+              srcset=""
+              width="380px"
+              height="220px"
+              class="dinosaur"
+            />
+          </div>
+        </div>
+        <div class="fact-container">
+          <div class="fact-text">fact goes here</div>
+        </div>
+      </div> -->
+      <!-- TODO: create elements here (9 in total, where human should be the centered one) -->
+    </main>
     <footer>
       <!-- Include information source -->
       <p class="fine-print">
@@ -71,5 +260,6 @@
         approximations.
       </p>
     </footer>
+    <script defer src="app.js"></script>
   </body>
 </html>
