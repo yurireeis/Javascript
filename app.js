@@ -75,6 +75,45 @@ const { "Dinos": dinoData = [] } = {
     ]
 };
 
+const comparisonFactory = (() => {
+    const compare = ({ species, otherAnimals = [], topic }) => otherAnimals
+        .slice(otherAnimals.findIndex(({ species: lookaheadSpecies }) => species === lookaheadSpecies), otherAnimals.length)
+        .filter(({ species: lookaheadSpecies }) => species !== lookaheadSpecies)
+        .map(({ species }) => species)
+        .reduce((acc, next) => Object.assign({}, acc, { species: [...acc.species, next] }), { topic, species: [] });
+
+    const tallerThanComparison = ({
+        species,
+        otherAnimals = dinosaurs.sort((a, b) => b.feet - a.feet)
+    }) => compare({ species, otherAnimals, topic: "taller than" });
+
+    const sameDietThanComparison = (({ species, otherAnimals }) => {
+        const { diet } = otherAnimals.find(({ species: lookaheadSpecies }) => species === lookaheadSpecies);
+        return otherAnimals
+            .filter((({ diet: lookaheadDiet, species: lookaheadSpecies }) => diet === lookaheadDiet && species !== lookaheadSpecies))
+            .map(({ species }) => species)
+            .reduce((acc, next) => Object.assign({}, acc, { species: [...acc.species, next] }), { topic: "same diet", species: [] });
+    });
+
+    const heavierThanComparison = ({
+        species,
+        otherAnimals = dinosaurs.sort((a, b) => b.lbs - a.lbs)
+    }) => compare({ species, otherAnimals, topic: "heavier than" });
+
+    const getComparisons = ({ species, otherAnimals = [] }) => ({
+        tallerThan: tallerThanComparison({ species, otherAnimals }),
+        heavierThan: heavierThanComparison({ species, otherAnimals }),
+        sameDietThan: sameDietThanComparison({ species, otherAnimals })
+    });
+
+    return { getComparisons };
+})();
+
+
+const sameDietHabitThanComparison = (baseAnimal, otherAnimals = []) => {
+
+}
+
 const convertInchesToFoot = (inches) => parseFloat(inches * 0.0833333);
 // const convertFootToInches = (foot) => parseFloat(foot * 12);
 
@@ -110,6 +149,7 @@ const tilesFactory = (({ dinosaurs, humanConfig, dinosaurConfigs = [], shuffle }
         .map(({ species, fact }) => {
             const { config: { color, filename } } = dinosaurConfigs.find(({ species: lookaheadSpecies }) => species === lookaheadSpecies);
             const imageUrl = `images/${filename}`;
+            const comparisons = comparisonFactory.getComparisons(({ species, otherAnimals: dinosaurs }));
             return new Tile(species, fact, color, imageUrl);
         }), new Tile("unnamed human", "", color, humanImageUrl)];
 
@@ -172,30 +212,12 @@ function Human(species, fact, inches, weight, diet, name) {
 Human.prototype = Object.create(Animal.prototype);
 Human.prototype.constructor = Human;
 
-// Create Dino Compare Method 1
-// NOTE: Weight in JSON file is in lbs, height in inches. 
-
-
-// Create Dino Compare Method 2
-// NOTE: Weight in JSON file is in lbs, height in inches.
-
-
-// Create Dino Compare Method 3
-// NOTE: Weight in JSON file is in lbs, height in inches.
-
-
-// Generate Tiles for each Dino in Array
-
-// Add tiles to DOM
-
-// Remove form from screen
-
-
-// On button click, prepare and display infographic
-
 
 const createTileEl = ({ imageUrl, name, color, fact }) => {
     const dinosaurContainerEl = document.createElement("div");
+    const dinosaurDataContainerEl = document.createElement("div");
+    dinosaurDataContainerEl.classList = ['dinosaur-data-container'];
+    dinosaurDataContainerEl.innerHTML = "some data goes here";
     dinosaurContainerEl.classList = ['dinosaur-container'];
     dinosaurContainerEl.style.backgroundColor = color;
     const dinosaurNameContainerEl = document.createElement("div");
@@ -223,9 +245,24 @@ const createTileEl = ({ imageUrl, name, color, fact }) => {
     factTextEl.classList = ["fact-text"];
     factTextEl.textContent = fact;
     factContainerEl.appendChild(factTextEl);
+    dinosaurContainerEl.appendChild(dinosaurDataContainerEl);
     dinosaurContainerEl.appendChild(dinosaurNameContainerEl);
     dinosaurContainerEl.appendChild(dinosaurImageContainerEl);
     dinosaurContainerEl.appendChild(factContainerEl);
+    dinosaurContainerEl.addEventListener("mouseenter", () => {
+        dinosaurContainerEl.style.transition = "background-color 0.6s ease";
+        dinosaurContainerEl.style.backgroundColor = 'rgba(0,0,0,0.2)';
+        imageEl.style.transition = "left 0.6s ease";
+        imageEl.style.left = '-100px';
+        dinosaurDataContainerEl.style.transition = "display 0.6s ease";
+        dinosaurDataContainerEl.style.display = "block";
+    });
+
+    dinosaurContainerEl.addEventListener("mouseleave", () => {
+        dinosaurContainerEl.style.backgroundColor = color;
+        dinosaurDataContainerEl.style.display = "none";
+        imageEl.style.left = '54px';
+    });
     return dinosaurContainerEl;
 }
 
@@ -269,7 +306,6 @@ const createTileEl = ({ imageUrl, name, color, fact }) => {
             ];
 
             const everyFieldWasFilled = requiredFields.every((value) => 'string' === typeof value && 0 !== value.length);
-            console.log({ inchesText, feetText, weightText, dietOptions, everyFieldWasFilled });
 
             if (!everyFieldWasFilled) {
                 alert('please fill all fields')
@@ -287,8 +323,6 @@ const createTileEl = ({ imageUrl, name, color, fact }) => {
                 .getTiles()
                 .map((tile) => createTileEl(tile));
             tilesEls.forEach(tile => mainElements.grid.appendChild(tile));
-
-            // const human = new Human('yuri', 'my-image');
             mainElements.dinoCompareForm.style = "display:none";
         });
     });

@@ -50,9 +50,21 @@ p {
 }
 
 .dinosaur-container {
-  width: 33%;
-  background-color: rgba(5, 155, 140, 0.9);
   cursor: pointer;
+  position: relative;
+}
+
+.dinosaur-data-container {
+  position: absolute;
+  width: 350px !important;
+  height: 140px;
+  text-align: right;
+  font-size: 12px;
+  color: black;
+  font-weight: 800;
+  top: 40px;
+  left: 250px;
+  display: none;
 }
 
 .dinosaur-name-container {
@@ -91,7 +103,11 @@ p {
 .dinosaur {
   position: absolute;
   top: -54px;
-  left: -50x;
+  left: 54px;
+}
+
+.dinosaur .highlight {
+  left: -115px;
 }
 
 .fact-container {
