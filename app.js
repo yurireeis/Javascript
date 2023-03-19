@@ -100,22 +100,17 @@ const comparisonFactory = (() => {
         otherAnimals = dinosaurs.sort((a, b) => b.lbs - a.lbs)
     }) => compare({ species, otherAnimals, topic: "heavier than" });
 
-    const getComparisons = ({ species, otherAnimals = [] }) => ({
-        tallerThan: tallerThanComparison({ species, otherAnimals }),
-        heavierThan: heavierThanComparison({ species, otherAnimals }),
-        sameDietThan: sameDietThanComparison({ species, otherAnimals })
-    });
+    const getComparisons = ({ species, otherAnimals = [] }) => ([
+        tallerThanComparison({ i: 1, species, otherAnimals }),
+        heavierThanComparison({ i: 2, species, otherAnimals }),
+        sameDietThanComparison({ i: 3, species, otherAnimals })
+    ]);
 
     return { getComparisons };
 })();
 
 
-const sameDietHabitThanComparison = (baseAnimal, otherAnimals = []) => {
-
-}
-
 const convertInchesToFoot = (inches) => parseFloat(inches * 0.0833333);
-// const convertFootToInches = (foot) => parseFloat(foot * 12);
 
 const shuffle = (arr = []) => {
     const max = arr.length * 2;
@@ -150,7 +145,7 @@ const tilesFactory = (({ dinosaurs, humanConfig, dinosaurConfigs = [], shuffle }
             const { config: { color, filename } } = dinosaurConfigs.find(({ species: lookaheadSpecies }) => species === lookaheadSpecies);
             const imageUrl = `images/${filename}`;
             const comparisons = comparisonFactory.getComparisons(({ species, otherAnimals: dinosaurs }));
-            return new Tile(species, fact, color, imageUrl);
+            return new Tile(species, fact, color, imageUrl, comparisons);
         }), new Tile("unnamed human", "", color, humanImageUrl)];
 
     const byHumanTile = ({ imageUrl }) => "images/human.png" === imageUrl;
@@ -173,11 +168,12 @@ const tilesFactory = (({ dinosaurs, humanConfig, dinosaurConfigs = [], shuffle }
     return { getTiles, randomizeTiles, setHumanTile };
 })({ dinosaurs, humanConfig: HUMAN_CONFIG, dinosaurConfigs: DINOSAUR_CONFIGS, shuffle });
 
-function Tile(name, fact, color, imageUrl) {
+function Tile(name, fact, color, imageUrl, comparisons = []) {
     this.name = name;
     this.fact = fact;
     this.color = color;
     this.imageUrl = imageUrl;
+    this.comparisons = comparisons;
 }
 
 function Animal(species, fact, inches, lbs, diet) {
@@ -212,59 +208,70 @@ function Human(species, fact, inches, weight, diet, name) {
 Human.prototype = Object.create(Animal.prototype);
 Human.prototype.constructor = Human;
 
+const tileFactory = (() => {
+    const compile = ({ comparisons = [] }) => comparisons.reduce((acc, next) => {
+        const { topic, species = [] } = next;
+        const text = 0 === species.length ? 'no other' : species.join(", ");
+        return `${acc}<span style="text-transform: uppercase;">[${topic}]:</span><br><span style="font-weight: 400">${text}</span><br><br>`;
+    }, '');
 
-const createTileEl = ({ imageUrl, name, color, fact }) => {
-    const dinosaurContainerEl = document.createElement("div");
-    const dinosaurDataContainerEl = document.createElement("div");
-    dinosaurDataContainerEl.classList = ['dinosaur-data-container'];
-    dinosaurDataContainerEl.innerHTML = "some data goes here";
-    dinosaurContainerEl.classList = ['dinosaur-container'];
-    dinosaurContainerEl.style.backgroundColor = color;
-    const dinosaurNameContainerEl = document.createElement("div");
-    dinosaurNameContainerEl.classList = ['dinosaur-name-container'];
-    const dinosaurNameEl = document.createElement("dinosaur-name");
-    dinosaurNameEl.classList = ["dinosaur-name"];
-    dinosaurNameEl.textContent = name;
-    const dinosaurImageContainerEl = document.createElement("div");
-    dinosaurImageContainerEl.classList = ["dinosaur-img-container"];
-    const dinosaurImageEl = document.createElement("div");
-    dinosaurImageEl.classList = ["dinosaur-img"];
-    const imageEl = document.createElement("img");
-    imageEl.classList = ["dinosaur"];
-    imageEl.setAttribute("src", `./${imageUrl}`);
-    imageEl.setAttribute("alt", "");
-    imageEl.setAttribute("srcset", "");
-    imageEl.setAttribute("width", "380px");
-    imageEl.setAttribute("height", "220px");
-    dinosaurNameContainerEl.appendChild(dinosaurNameEl);
-    dinosaurImageEl.appendChild(imageEl);
-    dinosaurImageContainerEl.appendChild(dinosaurImageEl);
-    const factContainerEl = document.createElement("div");
-    factContainerEl.classList = ["fact-container"];
-    const factTextEl = document.createElement("div");
-    factTextEl.classList = ["fact-text"];
-    factTextEl.textContent = fact;
-    factContainerEl.appendChild(factTextEl);
-    dinosaurContainerEl.appendChild(dinosaurDataContainerEl);
-    dinosaurContainerEl.appendChild(dinosaurNameContainerEl);
-    dinosaurContainerEl.appendChild(dinosaurImageContainerEl);
-    dinosaurContainerEl.appendChild(factContainerEl);
-    dinosaurContainerEl.addEventListener("mouseenter", () => {
-        dinosaurContainerEl.style.transition = "background-color 0.6s ease";
-        dinosaurContainerEl.style.backgroundColor = 'rgba(0,0,0,0.2)';
-        imageEl.style.transition = "left 0.6s ease";
-        imageEl.style.left = '-100px';
-        dinosaurDataContainerEl.style.transition = "display 0.6s ease";
-        dinosaurDataContainerEl.style.display = "block";
-    });
-
-    dinosaurContainerEl.addEventListener("mouseleave", () => {
+    const create = ({ imageUrl, name, color, fact, comparisons = [] }) => {
+        const dinosaurContainerEl = document.createElement("div");
+        const dinosaurDataContainerEl = document.createElement("div");
+        dinosaurDataContainerEl.classList = ['dinosaur-data-container'];
+        const dataContainerText = compile({ comparisons });
+        dinosaurDataContainerEl.innerHTML = dataContainerText;
+        dinosaurContainerEl.classList = ['dinosaur-container'];
         dinosaurContainerEl.style.backgroundColor = color;
-        dinosaurDataContainerEl.style.display = "none";
-        imageEl.style.left = '54px';
-    });
-    return dinosaurContainerEl;
-}
+        const dinosaurNameContainerEl = document.createElement("div");
+        dinosaurNameContainerEl.classList = ['dinosaur-name-container'];
+        const dinosaurNameEl = document.createElement("dinosaur-name");
+        dinosaurNameEl.classList = ["dinosaur-name"];
+        dinosaurNameEl.textContent = name;
+        const dinosaurImageContainerEl = document.createElement("div");
+        dinosaurImageContainerEl.classList = ["dinosaur-img-container"];
+        const dinosaurImageEl = document.createElement("div");
+        dinosaurImageEl.classList = ["dinosaur-img"];
+        const imageEl = document.createElement("img");
+        imageEl.classList = ["dinosaur"];
+        imageEl.setAttribute("src", `./${imageUrl}`);
+        imageEl.setAttribute("alt", "");
+        imageEl.setAttribute("srcset", "");
+        imageEl.setAttribute("width", "380px");
+        imageEl.setAttribute("height", "220px");
+        dinosaurNameContainerEl.appendChild(dinosaurNameEl);
+        dinosaurImageEl.appendChild(imageEl);
+        dinosaurImageContainerEl.appendChild(dinosaurImageEl);
+        const factContainerEl = document.createElement("div");
+        factContainerEl.classList = ["fact-container"];
+        const factTextEl = document.createElement("div");
+        factTextEl.classList = ["fact-text"];
+        factTextEl.textContent = fact;
+        factContainerEl.appendChild(factTextEl);
+        dinosaurContainerEl.appendChild(dinosaurDataContainerEl);
+        dinosaurContainerEl.appendChild(dinosaurNameContainerEl);
+        dinosaurContainerEl.appendChild(dinosaurImageContainerEl);
+        dinosaurContainerEl.appendChild(factContainerEl);
+        dinosaurContainerEl.addEventListener("mouseenter", () => {
+            dinosaurContainerEl.style.transition = "background-color 0.6s ease";
+            dinosaurContainerEl.style.backgroundColor = 'rgb(255,255,255,0.7)';
+            imageEl.style.transition = "left 0.6s ease";
+            imageEl.style.left = '-100px';
+            dinosaurDataContainerEl.style.transition = "display 0.6s ease";
+            dinosaurDataContainerEl.style.display = "block";
+        });
+
+        dinosaurContainerEl.addEventListener("mouseleave", () => {
+            dinosaurContainerEl.style.backgroundColor = color;
+            dinosaurDataContainerEl.style.display = "none";
+            imageEl.style.left = '54px';
+        });
+        return dinosaurContainerEl;
+    }
+
+    return { create }
+})();
+
 
 (function () {
     window.addEventListener("load", () => {
@@ -321,7 +328,7 @@ const createTileEl = ({ imageUrl, name, color, fact }) => {
             tilesFactory.setHumanTile({ tile: humanTile });
             const tilesEls = tilesFactory
                 .getTiles()
-                .map((tile) => createTileEl(tile));
+                .map((tile) => tileFactory.create(tile));
             tilesEls.forEach(tile => mainElements.grid.appendChild(tile));
             mainElements.dinoCompareForm.style = "display:none";
         });
