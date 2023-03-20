@@ -3,7 +3,9 @@ const getDinoData = async () => {
     return response.json();
 };
 
-const convertInchesToFoot = (inches) => inches && parseFloat(inches * 0.0833333) || undefined;
+const convertInchesToFoot = (inches) => inches && parseFloat(inches * 0.0833333) || 0;
+
+const convertFootToInches = (inches) => inches && parseFloat(inches * 12) || 0;
 
 const shuffle = (arr = []) => {
     const max = arr.length * 2;
@@ -259,7 +261,7 @@ const tileFactory = (() => {
 
             const inches = parseFloat(inchesText);
             const lbs = parseFloat(lbsText);
-            const human = new Human("Human", "", inches, lbs, dietText, nameText);
+            const human = new Human("Human", "no facts", inches, lbs, dietText, nameText);
             const { config: { filename, humanImageUrl = `images/${filename}`, color } } = HUMAN_CONFIG;
             const comparisons = animalDescriptionFactory.getDescription({
                 animal: human,
@@ -272,6 +274,16 @@ const tileFactory = (() => {
                 .map((tile) => tileFactory.create(tile));
             tilesEls.forEach(tile => mainElements.grid.appendChild(tile));
             mainElements.dinoCompareForm.style = "display:none";
+        });
+
+        mainElements.inchesInput.addEventListener('keyup', () => {
+            const { inchesInput: { value: inches } = {} } = mainElements;
+            mainElements.feetInput.value = convertInchesToFoot(inches);
+        });
+
+        mainElements.feetInput.addEventListener('keyup', () => {
+            const { feetInput: { value: feet } = {} } = mainElements;
+            mainElements.inchesInput.value = convertFootToInches(feet);
         });
     });
 })();

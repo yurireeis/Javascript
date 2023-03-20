@@ -32,6 +32,16 @@
         <input id="name" class="form-field__full" type="text" name="name" />
         <p>Height</p>
         <label
+        >inches:
+        <input
+          id="inches"
+          class="form-field__short"
+          type="number"
+          name="inches"
+          min="0"
+          value="0.0"
+      /></label>
+        <label
           >Feet:
           <input
             id="feet"
@@ -39,24 +49,18 @@
             type="number"
             min="0"
             name="feet"
+            value="0.0"
         /></label>
-        <label
-          >inches:
-          <input
-            id="inches"
-            class="form-field__short"
-            type="number"
-            name="inches"
-            min="0"
-        /></label>
+
         <p>Weight:</p>
         <label>
           <input
             id="weight"
-            class="form-field__full"
+            class="form-field__short"
             type="number"
             name="weight"
             min="0"
+            value="0.0"
           />lbs</label
         >
         <p>Diet:</p>
