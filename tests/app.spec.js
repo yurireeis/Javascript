@@ -14,7 +14,7 @@ describe('Animal constructor function tests', () => {
         expect(animal.species).to.be.undefined
         expect(animal.diet).to.be.undefined
         expect(animal.fact).to.be.undefined
-        expect(animal.feet).to.be.undefined
+        expect(animal.feet).to.be.equal(0)
         expect(animal.inches).to.be.undefined
         expect(animal.lbs).to.be.undefined
     })
@@ -32,7 +32,7 @@ describe('Dinosaur constructor function tests', () => {
         expect(dinosaur.species).to.be.undefined
         expect(dinosaur.diet).to.be.undefined
         expect(dinosaur.fact).to.be.undefined
-        expect(dinosaur.feet).to.be.undefined
+        expect(dinosaur.feet).to.be.equal(0)
         expect(dinosaur.inches).to.be.undefined
         expect(dinosaur.lbs).to.be.undefined
     })
@@ -60,14 +60,14 @@ describe('Human constructor function tests', () => {
         expect(human.species).to.be.undefined
         expect(human.diet).to.be.undefined
         expect(human.fact).to.be.undefined
-        expect(human.feet).to.be.undefined
+        expect(human.feet).to.be.equal(0)
         expect(human.inches).to.be.undefined
         expect(human.lbs).to.be.undefined
     })
 
     it('properties of Human object should not be undefined since arguments has been provided to the constructor', () => {
-        const human = new Human()
-        expect(human.species).to.be.equal("Species 1")
+        const human = new Human("Homo Sapiens", "some fact", 0.123, 456, "carnivore")
+        expect(human.species).to.be.equal("Homo Sapiens")
         expect(human.diet).to.be.equal("carnivore")
         expect(human.fact).to.be.equal("some fact")
         expect(human.feet).to.be.equal(0.0102499959)
