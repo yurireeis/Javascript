@@ -3,9 +3,15 @@ const getDinoData = async () => {
     return response.json();
 };
 
-const convertInchesToFoot = (inches) => inches && parseFloat(inches * 0.0833333) || 0;
+const convertInchesToFoot = (inches) => {
+    const conversion = inches && parseFloat(inches * 0.0833333);
+    return conversion && conversion > 0 ? conversion : 0;
+}
 
-const convertFootToInches = (inches) => inches && parseFloat(inches * 12) || 0;
+const convertFootToInches = (foot) => {
+    const conversion = foot && parseFloat(foot * 12)
+    return conversion && conversion > 0 ? conversion : 0;
+};
 
 const shuffle = (arr = []) => {
     const max = arr.length * 2;
@@ -292,6 +298,7 @@ if (typeof window === 'undefined') {
     module.exports = {
         getDinoData,
         convertInchesToFoot,
+        convertFootToInches,
         shuffle,
         animalDescriptionFactory,
         Tile,

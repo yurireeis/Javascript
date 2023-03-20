@@ -1,7 +1,54 @@
 const { describe, it } = require('mocha')
 const { expect } = require('chai')
-const { Animal, Dinosaur, Human, Tile } = require('../app')
+const {
+    Animal,
+    Dinosaur,
+    Human,
+    Tile,
+    convertInchesToFoot,
+    convertFootToInches
+} = require('../app')
 
+
+describe('convertFootToInches tests', () => {
+    it('result should be 0 since foot is undefined', () => {
+        const foot = undefined
+        const result = convertFootToInches(foot)
+        expect(result).to.be.equal(0)
+    })
+
+    it('result should be 0 since foot is lower than zero', () => {
+        const foot = -1
+        const result = convertFootToInches(foot)
+        expect(result).to.be.equal(0)
+    })
+
+    it('result should be 12 since foot is 1', () => {
+        const foot = 1
+        const result = convertFootToInches(foot)
+        expect(result).to.be.equal(12)
+    })
+})
+
+describe('convertInchesToFoot tests', () => {
+    it('result should be 0 since inches is undefined', () => {
+        const inches = undefined
+        const result = convertInchesToFoot(inches)
+        expect(result).to.be.equal(0)
+    })
+
+    it('result should be 0.0833333 since inches is 1', () => {
+        const inches = 1
+        const result = convertInchesToFoot(inches)
+        expect(result).to.be.equal(0.0833333)
+    })
+
+    it('result should be 0 since inches is lower than zero', () => {
+        const inches = -1
+        const result = convertInchesToFoot(inches)
+        expect(result).to.be.equal(0)
+    })
+})
 
 describe('Animal constructor function tests', () => {
     it('created object should be instance of Animal since was create from Animal constructor', () => {
