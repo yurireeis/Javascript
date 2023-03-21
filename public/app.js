@@ -147,6 +147,7 @@ const shuffle = (arr = []) => {
         .map(({ next }) => next);
 };
 
+// Create Animal Description Factory (Who's in change of doing comparisons)
 const animalDescriptionFactory = (() => {
     const compare = ({ species, otherAnimals = [], topic }) => otherAnimals
         .slice(otherAnimals.findIndex(({ species: lookaheadSpecies }) => species === lookaheadSpecies), otherAnimals.length)
@@ -163,11 +164,14 @@ const animalDescriptionFactory = (() => {
         topic: "description"
     });
 
+    // Create Dino Compare Method 1
+    // NOTE: Weight in JSON file is in lbs, height in inches. 
     const tallerThanComparison = ({
         species,
         otherAnimals
     }) => compare({ species, otherAnimals: otherAnimals.sort((a, b) => b.feet - a.feet), topic: "taller than" });
 
+    // Create Dino Compare Method 2
     const sameDietThanComparison = (({ species, otherAnimals }) => {
         const { diet } = otherAnimals.find(({ species: lookaheadSpecies }) => species === lookaheadSpecies);
         return otherAnimals
@@ -176,11 +180,14 @@ const animalDescriptionFactory = (() => {
             .reduce((acc, next) => Object.assign({}, acc, { species: [...acc.species, next] }), { topic: "same diet", species: [] });
     });
 
+    // Create Dino Compare Method 1
+    // NOTE: Weight in JSON file is in lbs, height in inches. 
     const heavierThanComparison = ({
         species,
         otherAnimals
     }) => compare({ species, otherAnimals: otherAnimals.sort((a, b) => b.lbs - a.lbs), topic: "heavier than" });
 
+    // Create Description Method
     const getDescription = ({ animal, otherAnimals = [] }) => ([
         describe({ animal }),
         tallerThanComparison({ i: 1, species: animal.species, otherAnimals }),
@@ -204,6 +211,7 @@ const DINOSAUR_CONFIGS = [
     { species: "Pigeon", config: { color: 'rgba(129, 102, 181, 0.8)', filename: 'pigeon.png' } },
 ];
 
+// Create Tile Constructor
 function Tile(name, fact, color, imageUrl, comparisons = []) {
     this.name = name;
     this.fact = fact;
@@ -212,6 +220,7 @@ function Tile(name, fact, color, imageUrl, comparisons = []) {
     this.comparisons = comparisons;
 }
 
+// Create Animal Constructor
 function Animal(species, facts, inches, lbs, diet) {
     this.species = species;
     this.facts = facts;
@@ -221,11 +230,13 @@ function Animal(species, facts, inches, lbs, diet) {
     this.diet = diet;
 }
 
+// Adding getFact behavior for all animals (and consequently dinosaurs and humans)
 Animal.prototype.getFact = function () {
     const [selectedFact] = shuffle(this.facts);
     return selectedFact;
 }
 
+// Create Dino Constructor
 function Dinosaur(species, facts, inches, weight, diet) {
     Animal.call(this, species, facts, inches, weight, diet);
 }
@@ -237,6 +248,7 @@ Dinosaur.prototype.getSpecies = function () {
     return this.species;
 }
 
+// Create Human Constructor
 function Human(species, facts, inches, weight, diet, name) {
     Animal.call(this, species, facts, inches, weight, diet);
     this.name = name;
@@ -245,6 +257,7 @@ function Human(species, facts, inches, weight, diet, name) {
 Human.prototype = Object.create(Animal.prototype);
 Human.prototype.constructor = Human;
 
+// Create Tile Factory using revealing module pattern
 const tileFactory = (() => {
     const compile = ({ comparisons = [] }) => comparisons.reduce((acc, next) => {
         const { topic, species = [] } = next;
@@ -372,6 +385,7 @@ const tileFactory = (() => {
             }
         })();
 
+        // On button click, prepare and display infographic
         mainElements.compareButton.addEventListener('click', () => {
             const { value: nameText } = mainElements.nameInput;
             const { value: inchesText } = mainElements.inchesInput;
@@ -394,9 +408,16 @@ const tileFactory = (() => {
                 return;
             }
 
-            const inches = parseFloat(inchesText);
-            const lbs = parseFloat(lbsText);
-            const human = new Human("Human", "no facts", inches, lbs, dietText, nameText);
+            // Use IIFE to get human data from form
+            const humanData = (function (inchesText, lbsText, dietText, nameText) {
+                const inches = parseFloat(inchesText);
+                const lbs = parseFloat(lbsText);
+                return { name: nameText, diet: dietText, species: "Human", facts: [], inches, lbs };
+            })(inchesText, lbsText, dietText, nameText);
+
+
+            // Create Human Object
+            const human = new Human(humanData.species, humanData.facts, humanData.inches, humanData.lbs, humanData.diet, humanData.name);
             const { config: { filename, humanImageUrl = `images/${filename}`, color } } = HUMAN_CONFIG;
             const comparisons = animalDescriptionFactory.getDescription({
                 animal: human,
@@ -404,10 +425,16 @@ const tileFactory = (() => {
             });
             const humanTile = new Tile(human.name, human.fact, color, humanImageUrl, comparisons);
             tilesFactory.setHumanTile({ tile: humanTile });
+
+            // Generate Tiles for each Dino in Array
             const tilesEls = tilesFactory
                 .getTiles()
                 .map((tile) => tileFactory.create(tile));
+
+            // Add tiles to DOM
             tilesEls.forEach(tile => mainElements.grid.appendChild(tile));
+
+            // Remove form from screen
             mainElements.dinoCompareForm.style = "display:none";
         });
 
