@@ -7,7 +7,7 @@ const {
     Tile,
     convertInchesToFoot,
     convertFootToInches
-} = require('../app')
+} = require('../public/app.js')
 
 
 describe('convertFootToInches tests', () => {

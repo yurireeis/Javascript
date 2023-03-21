@@ -2,12 +2,12 @@
   "name": "js-intermediate-dinossaurs",
   "version": "1.0.0",
   "description": "## Student Instructions",
-  "main": "app.js",
+  "main": "public/app.js",
   "type": "commonjs",
   "scripts": {
     "test": "npx mocha ./tests",
-    "lint": "npx eslint .",
-    "start": "npx http-server -c-1"
+    "lint": "npx eslint server.js tests/ public/",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,6 @@
     "mocha": "^10.2.0"
   },
   "dependencies": {
-    "http-server": "^14.1.1"
+    "express": "^4.18.2"
   }
 }
